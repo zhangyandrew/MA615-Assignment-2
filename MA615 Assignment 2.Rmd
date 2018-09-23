@@ -1,0 +1,109 @@
+---
+title: "MA615 Assignment 2"
+author: "Andrew Zhang"
+date: "9/23/2018"
+output: pdf_document
+---
+
+R for Data Science Exercises
+
+## 3.5.1
+
+### Question 2.
+
+What do the empty cells in plot with *facet_gird(drv ~ cyl)* mean? How do they relate to this plot?
+
+The empty cells mean there are no rows with that specific combination within the dataset. In relation to this plot, if there are empty cells, that just means that mpg doesn't contain the specific combinations of variables being asked for. 
+
+### Question 3.
+
+What plots does the following code make? What does *.* do?
+
+The first plot generates highway miles per gallon vs. engine displacement, separating the three levels within the various types of drive options(front wheel drive(f), rear wheel drive(r), and 4 wheel drive(4)). The second plot generates engine displacement vs. highway miles per gallon, separating the four levels within the various types of number of cylinders(4, 5, 6, 8). The *.* operator is a placeholder, allowing for only one dimension when dealing with multiple variables.
+
+## 3.6.1
+
+### Question 6.
+
+Recreate the R code necessary to generate the following graphs.
+
+```{r}
+install.packages("ggplot2", repos = "https://cran.r-project.org")
+library(ggplot2)
+
+data(mpg)
+ggplot(mpg) +
+  geom_point(aes(x = displ, y = hwy)) +
+  geom_smooth(aes(x = displ, y = hwy), se = FALSE)
+ggplot(mpg, aes(x = displ, y = hwy, group = drv)) +
+  geom_point() + geom_smooth(se = FALSE)
+ggplot(mpg, aes(x = displ, y = hwy, group = drv)) +
+  geom_point(aes(colour = drv)) + geom_smooth(se = FALSE)
+ggplot(mpg, aes(x = displ, y = hwy, group = drv)) +
+  geom_point(aes(colour = drv)) + geom_smooth(aes(colour = drv), se = FALSE)
+ggplot(mpg, aes(x = displ, y = hwy, group = drv)) +
+  geom_point(aes(colour = drv)) + geom_smooth(aes(linetype = drv), se = FALSE)
+ggplot(mpg, aes(x = displ, y = hwy, group = drv)) +
+  geom_point(size = 4, colour = "white") + geom_point(aes(colour = drv), se = FALSE)
+```
+
+## 5.2.4
+
+### Question 1.
+
+```{r}
+install.packages("nycflights13", repos = "https://cran.r-project.org")
+library(nycflights13)
+library(dplyr)
+attach(flights)
+
+## Had an arrival delay of two or more hours
+filter(flights, arr_delay >= 120)
+
+## Flew to Houston
+filter(flights, dest == "IAH" | dest == "HOU")
+
+## Were operated by United, American, or Delta
+filter(flights, carrier == "UA" | carrier == "AA" | carrier == "DL")
+
+## Departed in summer(July, August, September)
+filter(flights, month >= 7 & month <= 9)
+
+## Arrived more than two hours late, but didn't leave late
+filter(flights, arr_delay > 120 & dep_delay <= 0)
+
+## Were delayed by at least an hour, but made up over 30 minutes in flight
+filter(flights, dep_delay >= 60 & dep_delay - arr_delay > 30)
+
+## Departed between midnight and 6AM(inclusive)
+filter(flights, dep_time <= 600 | dep_time == 2400)
+```
+
+## Question 2.
+
+Another useful dplyr filtering helper is *between()*. What does it do? Can you use it simplify the code needed to answer the previous challenges?
+
+*between()* is a simplified version of x >= left & x <= right.
+
+```{r}
+filter(flights, between(month, 7, 9))
+filter(flights, !between(dep_time, 601, 2359))
+```
+
+## Question 3.
+How many flights have a missing dep_time? What other variables are missing? What might these rows represent?
+
+```{r}
+summary(flights)
+```
+
+There are 8255 missing flights for *dep_time*, 8255 missing flights for *dep_delay*, 8713 missing flights for *arr_time*, 9430 missing flights for *arr_delay*, and 9430 missing flights for *air_time*. It is possible that these flights weren't able to depart due to circumstances. It is also possible that the data was simply lost.
+
+## Question 4.
+
+Why is *NA ^ 0* not missing? Why is *NA | TRUE* not missing? Why is *FALSE & NA* not missing? Can you figure out the general rule? 
+
+*NA ^ 0* equals 1 since anything raised to 0 is 1. Therefore, *NA ^ 0* cannot be missing if it equals 1. 
+*NA | TRUE* will return *TRUE* if either side of the *|* is true. Therefore, *NA | TRUE* will never evaluate to missing.
+*FALSE & NA* will return *TRUE* or *FALSE* if the operation is proven to be true or false. Therefore, it will never return as missing.
+*NA  0* is interesting in that NA can represent *Inf*. If we were to multiply *Inf* and 0, we would get *NaN* not *NA*.
